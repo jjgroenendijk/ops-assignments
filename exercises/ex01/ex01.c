@@ -13,13 +13,15 @@ void print_env(char* envp[]);
 
 int main(int argc, char* argv[], char* envp[]) {
   // If no arguments are given, print help
-  if (argc < 1)
+  printf("%i\n", argc);
+
+  if (argc < 2)
   {
     print_help();
   }
   
   // Set up struct option array long_options[]
-  
+
   
   // Scan the different command-line arguments and options
   return 0;
