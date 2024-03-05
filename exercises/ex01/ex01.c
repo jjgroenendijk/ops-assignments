@@ -38,27 +38,47 @@ int main(int argc, char *argv[], char *envp[])
     switch (ch)
     {
     case 'h':
+    {
       printf("\noption: h\n");
       print_help();
       break;
+    }
 
     case 'f':
-      printf("\noption: f\n");
-      char *fileName = optarg;
-      printf("File name: %s\n", fileName);
+    {
+      char *fileName10 = optarg;
 
-      fileExistsCheck(fileName);
+      if (fileExistsCheck(fileName10))
+      {
+        //printf("success!\n");
+        read_file(fileName10, false);
+      }
       break;
+    }
 
     case 'e':
-      printf("\noption: e\n");
+    {
+      char *fileName10 = optarg;
+
+      if (fileExistsCheck(fileName10))
+      {
+        //printf("success!\n");
+        read_file(fileName10, true);
+      }
       break;
+    }
+
     case 'v':
+    {
       printf("\noption: v\n");
+      print_env(envp);
       break;
+    }
 
     default:
+    {
       break;
+    }
     }
   }
 }
@@ -139,13 +159,8 @@ bool fileExistsCheck(char *fileName)
   if (file)
   {
     fclose(file);
-    printf("file does exist: %s\n", fileName);
+    //printf("file does exist: %s\n", fileName);
     fileExists = true;
   }
-  else
-  {
-    printf("file does not exist: %s\n", fileName);
-  }
-
   return fileExists;
 }
