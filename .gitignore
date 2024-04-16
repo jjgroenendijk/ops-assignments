@@ -4,3 +4,4 @@ exercises/ex01/a
 exercises/ex01/ex01
 exercises/ex02/display
 .DS_Store
+*.o

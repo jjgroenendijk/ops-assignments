@@ -6,35 +6,49 @@
  * Description:  OPS exercise 2:  definitions of test functions for display.c
  ******************************************************************************/
 
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "syntaxCheck.h"
 
-
 // Test whether an argument is one character long and has the correct value (e,p,w):
-ErrCode TestType(char *printMethod) {
+ErrCode TestType(char *printMethod)
+{
   ErrCode fout = NO_ERR;
-  
-  // Add the missing code
-  
+
+  // Check if printMethod is not equal to 1 character
+  if (!(strlen(printMethod) == 1))
+  {
+    printf("\nWrong amount of input letters as first argument!\n");
+    fout = ERR_TYPE;
+  }
+
+  // Check if printMethod is not equal to character e, p or w
+  if (!((strcmp(printMethod, "e") == 0) || (strcmp(printMethod, "p") == 0) || (strcmp(printMethod, "w") == 0)))
+  {
+    printf("\nWrong input letter as first argument!\n");
+    fout = ERR_TYPE;
+  }
+
   return fout;
 }
-
 
 // Test whether an argument contains a non-negative number:
-ErrCode TestNr(char *numberOfTimes) {
+ErrCode TestNr(char *numberOfTimes)
+{
   ErrCode fout = NO_ERR;
-  
+
   // Add the missing code
-  
+
   return fout;
 }
 
-
 // Test whether an argument contains only one character:
-ErrCode TestChar(char *printChar) {
+ErrCode TestChar(char *printChar)
+{
   ErrCode fout = NO_ERR;
-  
+
   // Add the missing code
-  
+
   return fout;
 }
