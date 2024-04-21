@@ -14,6 +14,9 @@ int main(int argc, char *argv[]) {
   unsigned long int numOfTimes;
   char printMethod, printChar;
   ErrCode err;
+
+  unsigned long int numOfChar = argc - 4;
+  printf("numOfChar: %lu\n", numOfChar);
   
   err = SyntaxCheck(argc, argv);  // Check the command-line parameters
   if(err != NO_ERR) {
@@ -21,9 +24,17 @@ int main(int argc, char *argv[]) {
   } else {
     printMethod = argv[1][0];
     numOfTimes = strtoul(argv[2], NULL, 10);  // String to unsigned long
-    printChar = argv[3][0];
-    
-    PrintCharacters(printMethod, numOfTimes, printChar);  // Print character printChar numOfTimes times using method printMethod
+
+    int qq = 0;
+
+    while (argv[3][qq] != '\0')
+    {
+      printChar = argv[3][qq];
+      PrintCharacters(printMethod, numOfTimes, printChar);
+      qq++;
+    }
+
+    //PrintCharacters(printMethod, numOfTimes, printChar);  // Print character printChar numOfTimes times using method printMethod
   }
   
   printf("\n");  // Newline at end
