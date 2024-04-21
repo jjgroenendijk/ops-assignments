@@ -6,7 +6,7 @@
  * Description:  OPS exercise 2:  definitions of test functions for display.c
  ******************************************************************************/
 
-#include <stdio.h>
+//#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "syntaxCheck.h"
@@ -19,14 +19,14 @@ ErrCode TestType(char *printMethod)
   // Check if printMethod is not equal to 1 character
   if (!(strlen(printMethod) == 1))
   {
-    printf("\nWrong amount of input letters as first argument!\n");
+    //printf("\nWrong amount of input letters as first argument!\n");
     fout = ERR_TYPE;
   }
 
   // Check if printMethod is not equal to character e, p or w
   if (!((strcmp(printMethod, "e") == 0) || (strcmp(printMethod, "p") == 0) || (strcmp(printMethod, "w") == 0)))
   {
-    printf("\nWrong input letter as first argument!\n");
+    //printf("\nWrong input letter as first argument!\n");
     fout = ERR_TYPE;
   }
 
@@ -38,7 +38,11 @@ ErrCode TestNr(char *numberOfTimes)
 {
   ErrCode fout = NO_ERR;
 
-  // Add the missing code
+  int num = atoi(numberOfTimes);
+  if (!(num >= 0))
+  {
+    fout = ERR_NR;
+  }
 
   return fout;
 }
@@ -48,7 +52,18 @@ ErrCode TestChar(char *printChar)
 {
   ErrCode fout = NO_ERR;
 
-  // Add the missing code
+  int printCharIndex = 0;
+
+  while (printChar[printCharIndex] != '\0')
+  {
+    //printf("printchar pos: %i data: %c\n", printCharIndex, printChar[printCharIndex]);
+    if (printCharIndex > 0)
+    {
+      fout = ERR_CHAR;
+      break;
+    }
+    printCharIndex++;
+  }
 
   return fout;
 }
