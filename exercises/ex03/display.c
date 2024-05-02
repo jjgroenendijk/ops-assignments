@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/resource.h>
 #include "displayFunctions.h"
 
 int main(int argc, char *argv[])
@@ -42,8 +43,12 @@ int main(int argc, char *argv[])
       {
         // Calculate new nice value, set the new nice value and print to console
         int newNiceValue = iChild * niceIncr;
-        int niceValue = nice(newNiceValue);
-        printf("\tnice: %i", niceValue);
+        nice(newNiceValue);
+        printf("\tnice: %02d", newNiceValue);
+
+        // get actual nice value of child process
+        int currentNiceValue = getpriority(PRIO_PROCESS, 0);
+        printf("\tactual nice: %02d", currentNiceValue);
 
         // Find and print the character
         printChar = argv[iChild + 4][0];
