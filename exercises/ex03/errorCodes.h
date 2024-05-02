@@ -10,7 +10,7 @@
 #ifndef errorCodes_H
 #define errorCodes_H
 
-#define NUM_OF_PARS 4  // Number of arguments on the command line, including the program name
+#define NUM_OF_PARS 5  // Number of arguments on the command line, including the program name
 
 typedef enum {NO_ERR, ERR_PARS, ERR_TYPE, ERR_NR, ERR_CHAR} ErrCode;
 /*
