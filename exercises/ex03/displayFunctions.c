@@ -78,4 +78,5 @@ void PrintCharacters(char printMethod, unsigned long numberOfTimes, char printCh
   default:
     printf("INTERNAL ERROR: Unknown print type:  %s.  This should not happen!\n", &printMethod);
   }
+
 }

@@ -1,14 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include "displayFunctions.h"
 
 int main(int argc, char *argv[])
 {
-  unsigned long int numOfTimes = strtoul(argv[2], NULL, 10); // String to unsigned long
-  unsigned long int niceIncr = (int)strtoul(argv[3], NULL, 10);
-  char printMethod, printChar;
+  // Declare needed variables. Mostly for interpreting argv arguments
+  char printMethod              = argv[1][0];
+  unsigned long int numOfTimes  = strtoul(argv[2], NULL, 10);
+  unsigned long int niceIncr    = strtoul(argv[3], NULL, 10);
+  unsigned long int numOfChar   = argc - 4;
+  char printChar;
   ErrCode err;
+
+  // Print global variables for a sanity check
+  printf("printMethod: %c\n"
+         "numOfTimes: %lu\n"
+         "niceIncr: %lu\n"
+         "numOfChar: %lu\n\n\n",
+         printMethod, numOfTimes, niceIncr, numOfChar);
 
   // Check the command-line parameters
   err = SyntaxCheck(argc, argv);
@@ -17,12 +28,6 @@ int main(int argc, char *argv[])
     DisplayError(err);
   }
 
-  printMethod = argv[1][0];
-
-  // Determine the amount of characters that will be printed on screen
-  unsigned long int numOfChar = argc - 4;
-  printf("numOfChar: %lu\n", numOfChar);
-
   // loop over every iChild (which covers the number of different print characters)
   for (int iChild = 0; iChild < numOfChar; iChild++)
   {
@@ -30,19 +35,26 @@ int main(int argc, char *argv[])
     // Start forking children here:
     pid_t pid = fork();
 
+    // Child process
     if (pid == 0)
     {
-      // Child process
-      // printf("child process pid: %i\n", getpid());
+      // Calculate new nice value, set the new nice value and print to console
+      int newNiceValue = iChild * niceIncr;
+      int niceValue = nice(newNiceValue);
+      printf("\tnice: %i", niceValue);
 
-      // show the iteration, the nice value result and the character to print
-      printf("%i %lu %c\n", iChild, iChild * niceIncr, argv[iChild + 4][0]);
+      // Find and print the character
+      printChar = argv[iChild + 4][0];
+      PrintCharacters(printMethod, numOfTimes, printChar);
+
       exit(0);
     }
-    else
+
+    // Parent process
+    if (pid != 0)
     {
-      // Parent process
-      printf("parent process pid: %i\n", getpid());
+      wait(NULL);
+      printf("\n");
     }
   }
   return 0;
