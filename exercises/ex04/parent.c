@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/resource.h>
+#include "displayFunctions.h"
+
+int main(int argc, char *argv[])
+{
+  // Declare needed variables. Mostly for interpreting argv arguments
+  char printChar;
+  ErrCode err;
+
+  // Check the command-line parameters
+  err = SyntaxCheck(argc, argv);
+  if (err != NO_ERR)
+  {
+    DisplayError(err);
+  }
+  else
+  {
+
+    // Declare variables after the syntax has been checked
+    char printMethod = argv[1][0];
+    unsigned long int numOfTimes = strtoul(argv[2], NULL, 10);
+    unsigned long int niceIncr = strtoul(argv[3], NULL, 10);
+    unsigned long int numOfChar = argc - 4;
+
+    // Print global variables for a sanity check
+    printf("SANITY CHECK DECLARED VARIABLES:\n"
+           "printMethod: %c\n"
+           "numOfTimes: %lu\n"
+           "niceIncr: %lu\n"
+           "numOfChar: %lu\n\n",
+           printMethod, numOfTimes, niceIncr, numOfChar);
+
+    // loop over every iChild (which covers the number of different print characters)
+    for (int iChild = 0; iChild < numOfChar; iChild++)
+    {
+
+      // Start forking children here:
+      pid_t pid = fork();
+
+      // Child process
+      if (pid == 0)
+      {
+        // Calculate new nice value, set the new nice value and print to console
+        int newNiceValue = iChild * niceIncr;
+        nice(newNiceValue);
+        printf("\tnice: %02d", newNiceValue);
+
+        // get actual nice value of child process
+        int currentNiceValue = getpriority(PRIO_PROCESS, 0);
+        printf("\tactual nice: %02d", currentNiceValue);
+
+        // Find and print the character
+        printChar = argv[iChild + 4][0];
+        PrintCharacters(printMethod, numOfTimes, printChar);
+
+        exit(0);
+      }
+
+      // Parent process
+      if (pid != 0)
+      {
+
+        // Wait for all child processes to finish and print a new line
+        int status;
+        while ((pid = wait(&status)) != -1)
+        {
+          ;
+        }
+        printf("\n");
+      }
+    }
+  }
+  return 0;
+}
