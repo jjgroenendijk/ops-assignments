@@ -1,6 +1,8 @@
 *
 !/**/
 !*.*
+!display
+!Makefile
 .DS_Store
 tasks.json
 settings.json

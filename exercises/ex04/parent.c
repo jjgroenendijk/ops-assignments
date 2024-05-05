@@ -7,8 +7,6 @@
 
 int main(int argc, char *argv[])
 {
-  // Declare needed variables. Mostly for interpreting argv arguments
-  char printChar;
   ErrCode err;
 
   // Check the command-line parameters
@@ -17,14 +15,16 @@ int main(int argc, char *argv[])
   {
     DisplayError(err);
   }
+
+  // Continue if no errors have been found in the arguments
   else
   {
-
     // Declare variables after the syntax has been checked
     char printMethod = argv[1][0];
     unsigned long int numOfTimes = strtoul(argv[2], NULL, 10);
     unsigned long int niceIncr = strtoul(argv[3], NULL, 10);
     unsigned long int numOfChar = argc - 4;
+    int waitIncrement = 0;
 
     // Print global variables for a sanity check
     printf("SANITY CHECK DECLARED VARIABLES:\n"
@@ -35,8 +35,13 @@ int main(int argc, char *argv[])
            printMethod, numOfTimes, niceIncr, numOfChar);
 
     // loop over every iChild (which covers the number of different print characters)
-    for (int iChild = 0; iChild < numOfChar; iChild++)
+    for (int iChild = 0; iChild < (argc - 4); iChild++)
     {
+
+      // Calculate new nice value, set the new nice value and retrieve actual current Nice Value
+      int newNiceValue = iChild * niceIncr;
+      nice(newNiceValue);
+      int currentNiceValue = getpriority(PRIO_PROCESS, 0);
 
       // Start forking children here:
       pid_t pid = fork();
@@ -44,33 +49,47 @@ int main(int argc, char *argv[])
       // Child process
       if (pid == 0)
       {
-        // Calculate new nice value, set the new nice value and print to console
-        int newNiceValue = iChild * niceIncr;
-        nice(newNiceValue);
-        printf("\tnice: %02d", newNiceValue);
+        // Set letter to print
+        char *printMethodPointer = argv[1];
+        char *numOfTimesPointer = argv[3];
+        char *printCharPointer = argv[iChild + 4];
 
-        // get actual nice value of child process
-        int currentNiceValue = getpriority(PRIO_PROCESS, 0);
-        printf("\tactual nice: %02d", currentNiceValue);
+        // Starting threads
+        printf("Process ID: %i", getpid());
 
-        // Find and print the character
-        printChar = argv[iChild + 4][0];
-        PrintCharacters(printMethod, numOfTimes, printChar);
+        // execl() to exercise 2
+        int runExec = execl(
+            "../ex02/display",
+            "../ex02/display",
+            printMethodPointer,
+            numOfTimesPointer,
+            printCharPointer,
+            NULL);
 
-        exit(0);
+        if (runExec == -1)
+        {
+          perror("execl failed!\n");
+          exit(EXIT_FAILURE);
+        }
       }
 
       // Parent process
       if (pid != 0)
       {
 
-        // Wait for all child processes to finish and print a new line
+        // Wait for all child processes to finish
         int status;
         while ((pid = wait(&status)) != -1)
         {
-          ;
+          // Increment the waitIncrement
+          waitIncrement++;
         }
-        printf("\n");
+      }
+
+      // Print the message after all child processes have finished
+      if (waitIncrement == numOfChar)
+      {
+        printf("Threads have finished\n");
       }
     }
   }
