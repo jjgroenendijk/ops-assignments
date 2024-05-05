@@ -16,7 +16,7 @@
 #include <stdlib.h>  // system()
 #include <stdbool.h> // bool
 
-bool debug = true;
+bool debug = false;
 
 volatile char number = '0';
 
@@ -59,9 +59,9 @@ int main()
     action.sa_handler = signalHandler;
     sigaction(25, &action, NULL);
 
-
-
     clearTerminal();
+
+    printf("Process ID: %d\n", getpid());
 
     while (1)
     {
@@ -76,12 +76,12 @@ int main()
             // Increment number artificially
             number = number + 1;
         }
-        
+
         // remove number
         returnKey();
 
-        // Wait one second
-        sleep(1);
+        // Wait 5 seconds
+        sleep(5);
     }
 
     return 0;
