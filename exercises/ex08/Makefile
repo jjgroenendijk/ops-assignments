@@ -1,12 +1,3 @@
-##############################################################################
-# File:         Makefile
-# Version:      1.1
-# Date:         2016-03-31
-# Author:       M. van der Sluys, J. Onokiewicz
-# Description:  OPS exercise 5: Queues
-##############################################################################
-
-
 CXX = ${CC}
 CXXFLAGS=-g -O0 -Wall -Wextra
 
@@ -31,7 +22,7 @@ $(EXECUTABLE): $(OBJECTS) buildnumber.num
 depend: $(SOURCES)
 	$(CXX) $(CXXFLAGS) -MM  $^ > $@
 
--include depend
+
 
 # Buildnumber
 buildnumber.num: $(OBJECTS)
