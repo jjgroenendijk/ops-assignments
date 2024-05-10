@@ -1,0 +1,63 @@
+==10873== Memcheck, a memory error detector
+==10873== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==10873== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info
+==10873== Command: ./debug
+==10873== 
+
+List the contents of the current queue:
+Queue is empty, last node is (nil)
+
+Create a new queue:
+Queue contains 1 nodes:
+Last node: 0x4a43080
+pNode = 0x4a43080  Data = '1' 'Hello queue'  nextN = 0x4a43080
+
+Add new data to the queue:
+Queue contains 2 nodes:
+Last node: 0x4a430e0
+pNode = 0x4a43080  Data = '1' 'Hello queue'  nextN = 0x4a430e0
+pNode = 0x4a430e0  Data = '2' 'Hello queue'  nextN = 0x4a43080
+
+Add new data to the queue:
+Queue contains 3 nodes:
+Last node: 0x4a43140
+pNode = 0x4a43080  Data = '1' 'Hello queue'  nextN = 0x4a430e0
+pNode = 0x4a430e0  Data = '2' 'Hello queue'  nextN = 0x4a43140
+pNode = 0x4a43140  Data = '3' 'Hello queue'  nextN = 0x4a43080
+
+Add new data to the queue:
+Queue contains 4 nodes:
+Last node: 0x4a431a0
+pNode = 0x4a43080  Data = '1' 'Hello queue'  nextN = 0x4a430e0
+pNode = 0x4a430e0  Data = '2' 'Hello queue'  nextN = 0x4a43140
+pNode = 0x4a43140  Data = '3' 'Hello queue'  nextN = 0x4a431a0
+pNode = 0x4a431a0  Data = '4' 'Hello queue'  nextN = 0x4a43080
+
+Remove data from the queue:
+Queue contains 3 nodes:
+Last node: 0x4a431a0
+pNode = 0x4a430e0  Data = '2' 'Hello queue'  nextN = 0x4a43140
+pNode = 0x4a43140  Data = '3' 'Hello queue'  nextN = 0x4a431a0
+pNode = 0x4a431a0  Data = '4' 'Hello queue'  nextN = 0x4a430e0
+
+Front iValue/first node: 2
+Back  iValue/last node:  4
+
+Delete the current queue:
+Queue is empty, last node is (nil)
+
+Create a new queue:
+Queue contains 1 nodes:
+Last node: 0x4a43200
+pNode = 0x4a43200  Data = '4' 'Hello queue'  nextN = 0x4a43200
+Remove queue again to prevent memory leak
+Queue is empty, last node is (nil)
+==10873== 
+==10873== HEAP SUMMARY:
+==10873==     in use at exit: 0 bytes in 0 blocks
+==10873==   total heap usage: 6 allocs, 6 frees, 4,256 bytes allocated
+==10873== 
+==10873== All heap blocks were freed -- no leaks are possible
+==10873== 
+==10873== For lists of detected and suppressed errors, rerun with: -s
+==10873== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
