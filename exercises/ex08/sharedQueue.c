@@ -20,42 +20,78 @@
 */
 
 #include "Queue.h"
-#include <stdio.h>
+#include <stdio.h> // printf
 #include <stdlib.h>
-#include <unistd.h>
+#include <unistd.h>  // sleep
+#include <signal.h>  // signal
+#include <stdbool.h> // bool
+
+#define SIGINT 2
+
+bool finishFlagRaised = false;
 
 // Signal handler for CTRL-C
 // To make sure all threads finish their last cycle
+void signalHandler(int signal)
+{
+  if (signal == SIGINT)
+  {
+    printf("\n"
+           "CTRL-C pressed\n"
+           "Raising the finish flag!\n");
+    finishFlagRaised = true;
+  }
+}
 
 int main()
 {
   // Signal handler for CTRL-C
+  // signal(SIGINT, signalHandler);
+  struct sigaction sa;
+  sa.sa_handler = signalHandler;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = 0;
+
+  if (sigaction(SIGINT, &sa, NULL) == -1)
+  {
+    perror("sigaction");
+    return 1;
+  }
 
   int timeTick = 0;
 
-  while (timeTick < 15)
+  while ((timeTick < 15) && (finishFlagRaised == false))
   {
+    // Show current time tick
+    printf("Time tick: %d\t", timeTick);
+
     // Producer thread A
     // Write data to queue every 2 seconds
     if (timeTick % 2 == 0)
     {
+      printf("Producer thread A\t");
     }
 
     // Producer thread B
     // Write data to queue every 3 seconds
     if (timeTick % 3 == 0)
     {
+      printf("Producer thread B\t");
     }
 
     // Producer thread C
     // Write data to queue every 4 seconds
     if (timeTick % 4 == 0)
     {
+      printf("Producer thread C\t");
     }
 
+    // Consumer thread
     // Read data from queue every 15 seconds
     if (timeTick % 15 == 0)
     {
+      printf("Consumer thread\t");
+
       // Append data to file
 
       // Print data to stdout
@@ -67,7 +103,7 @@ int main()
     sleep(1);
 
     // Increment timeTick
-    if (timeTick == 15)
+    if (timeTick == 14)
     {
       timeTick = 0;
     }
@@ -75,6 +111,8 @@ int main()
     {
       timeTick++;
     }
+
+    printf("\n");
   }
 
   return 0;
