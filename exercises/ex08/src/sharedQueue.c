@@ -18,7 +18,7 @@
       Hint: you should do most of your coding in sharedQueue.c (and you will have to change it drastically), and only very little in the other source files.
 
 */
-
+// Libraries
 #include "Queue.h"
 #include <stdio.h>   // printf
 #include <stdlib.h>  // exit
@@ -27,8 +27,10 @@
 #include <stdbool.h> // bool
 #include <pthread.h> // pthread
 
+// Constants
 #define SIGINT 2
 
+// Global variables
 volatile bool continueFlag = true;
 
 // Prototypes
@@ -41,6 +43,8 @@ int main()
 {
   // Initialize signal handler
   initSignalHandler();
+
+  // Initialize a data queue
 
   // Define threads
   pthread_t producerA, producerB, producerC, consumerD;
@@ -60,7 +64,7 @@ int main()
   printf("\n"
          "Program finished!"
          "\n");
-  
+
   return 0;
 }
 
@@ -90,16 +94,37 @@ void initSignalHandler()
 // Producer thread function
 void *producerThread(void *arg)
 {
-  // Print information about the consumer thread
-  printf("Thread ID: %lu\t", (unsigned long)pthread_self());
-
-  // Get the producer name and store it in a local variable. Print for debugging purposes
+  // Get the producer name and store it in a local variable
   char *producerName = (char *)arg;
-  printf("Producer name: %s\t", producerName);
 
   // Producer thread loop
   while (continueFlag)
   {
+    // Switch case to determine the sleep time
+    switch (*producerName)
+    {
+    case 'A':
+      // Produce data every 2 seconds
+      printf("Producer name: %s\t", producerName);
+      fflush(stdout);
+
+      sleep(2);
+      break;
+    case 'B':
+      // Produce data every 3 seconds
+      printf("Producer name: %s\t", producerName);
+      fflush(stdout);
+
+      sleep(3);
+      break;
+    case 'C':
+      // Produce data every 4 seconds
+      printf("Producer name: %s\t", producerName);
+      fflush(stdout);
+
+      sleep(4);
+      break;
+    }
   }
 
   return NULL;
@@ -108,9 +133,6 @@ void *producerThread(void *arg)
 // Consumer thread function
 void *consumerThread(void *arg)
 {
-  // Print information about the consumer thread
-  printf("Thread ID: %lu\t", (unsigned long)pthread_self());
-
   // Execute every 15 seconds
   // Appends data to a file
   // Print data to stdout
@@ -118,11 +140,19 @@ void *consumerThread(void *arg)
 
   // Get the consumer name and store it in a local variable. Print for debugging purposes
   char *consumerName = (char *)arg;
-  printf("Consumer name: %s\t", consumerName);
 
   // Consumer thread loop
   while (continueFlag)
   {
+    // Append data to a file
+
+    
+
+    // Print data to stdout
+
+    // Empty the queue
+
+    sleep(15);
   }
 
   return NULL;
