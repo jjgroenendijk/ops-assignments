@@ -29,7 +29,7 @@
 
 #define SIGINT 2
 
-volatile bool finishFlagRaised = false;
+volatile bool continueFlag = true;
 
 // Prototypes
 void signalHandler(int signal);
@@ -57,9 +57,9 @@ int main()
   pthread_join(producerC, NULL);
   pthread_join(consumerD, NULL);
 
-  printf("\n\n\n"
+  printf("\n"
          "Program finished!"
-         "\n\n\n");
+         "\n");
   
   return 0;
 }
@@ -73,7 +73,7 @@ void signalHandler(int signal)
     printf("\n"
            "CTRL-C pressed\n"
            "Raising the finish flag!\n");
-    finishFlagRaised = true;
+    continueFlag = false;
   }
 }
 
@@ -93,10 +93,14 @@ void *producerThread(void *arg)
   // Print information about the consumer thread
   printf("Thread ID: %lu\t", (unsigned long)pthread_self());
 
-  // Get the producer name and store it in a local variable
+  // Get the producer name and store it in a local variable. Print for debugging purposes
   char *producerName = (char *)arg;
+  printf("Producer name: %s\t", producerName);
 
   // Producer thread loop
+  while (continueFlag)
+  {
+  }
 
   return NULL;
 }
@@ -112,11 +116,12 @@ void *consumerThread(void *arg)
   // Print data to stdout
   // Empty the queue
 
-  // Get the consumer name and store it in a local variable
+  // Get the consumer name and store it in a local variable. Print for debugging purposes
   char *consumerName = (char *)arg;
+  printf("Consumer name: %s\t", consumerName);
 
   // Consumer thread loop
-  while (!finishFlagRaised)
+  while (continueFlag)
   {
   }
 

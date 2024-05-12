@@ -1,0 +1,9 @@
+-g
+-O0
+-Wall
+-Wextra
+-MM
+Queue.c
+main-with-memory-leak.c
+main.c
+sharedQueue.c
