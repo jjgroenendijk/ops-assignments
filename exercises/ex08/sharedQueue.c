@@ -34,8 +34,8 @@ volatile bool finishFlagRaised = false;
 // Prototypes
 void signalHandler(int signal);
 void initSignalHandler(void);
-void producerThread(char *producerName);
-void consumerThread(char *consumerName);
+void *producerThread(void *arg);
+void *consumerThread(void *arg);
 
 int main()
 {
@@ -57,7 +57,10 @@ int main()
   pthread_join(producerC, NULL);
   pthread_join(consumerD, NULL);
 
-  printf("\n\n\nProgram finished!\n");
+  printf("\n\n\n"
+         "Program finished!"
+         "\n\n\n");
+  
   return 0;
 }
 
@@ -84,19 +87,38 @@ void initSignalHandler()
   sigaction(SIGINT, &sa, NULL);
 }
 
-void producerThread(char *producerName)
+// Producer thread function
+void *producerThread(void *arg)
 {
-  printf("Producer thread %s\t", producerName);
+  // Print information about the consumer thread
+  printf("Thread ID: %lu\t", (unsigned long)pthread_self());
+
+  // Get the producer name and store it in a local variable
+  char *producerName = (char *)arg;
+
+  // Producer thread loop
+
+  return NULL;
 }
 
-void consumerThread(char *consumerName)
+// Consumer thread function
+void *consumerThread(void *arg)
 {
-  printf("Consumer thread %s\t", consumerName);
+  // Print information about the consumer thread
+  printf("Thread ID: %lu\t", (unsigned long)pthread_self());
 
-  // Append data to file
-
+  // Execute every 15 seconds
+  // Appends data to a file
   // Print data to stdout
-
   // Empty the queue
 
+  // Get the consumer name and store it in a local variable
+  char *consumerName = (char *)arg;
+
+  // Consumer thread loop
+  while (!finishFlagRaised)
+  {
+  }
+
+  return NULL;
 }
