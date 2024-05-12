@@ -1,23 +1,14 @@
 /*
 
-  Program description:
-    1. a thread that writes data (i.e. a node) to the shared queue every 2 seconds. This is a producer thread;
-    2. a producer thread that writes data to the shared queue every 3 seconds;
-    3. a producer thread that writes data to the shared queue every 4 seconds;
-      • you should use the same thread function for all three producer threads. Hint: use different arguments when starting your threads to pass data and production intervals;
-      • the producer threads do not produce screen output.
-    4. a consumer thread that reads data from the shared queue every 15 seconds, appends these data to a file, prints them to stdout and empties the queue. In the interval between two consumer iterations, no output is shown on the screen.
-
-  Requirements:
-    • Ensure that the data are different for each thread, so that we can recognise which data come from which producer.
-      Hint: pass these as arguments when starting your threads.
-    •  Use the C function sleep() in a loop to generate the desired production and consumption intervals. Hint: these loops must be in the thread functions.
-    • Use a mutex or mutexes to guard the critical actions. How many mutexes do you need?
-    • When Ctrl-C is pressed, all threads must finish their last cycle, rather than terminate immediately. In the end, the consumer saves the last data produced and also quits. This will require a shared variable that is accessible to all threads.
-    • The main() function in sharedQueue.c only installs the SHR and creates and joins the four threads.
-      Hint: you should do most of your coding in sharedQueue.c (and you will have to change it drastically), and only very little in the other source files.
+  To do:
+    - appendFile function
+    - Mutex implementation
+    - Check if queue is empty
+    - Check for memory leaks
+    - Random number with fixed width
 
 */
+
 // Libraries
 #include "Queue.h"
 #include <stdio.h>   // printf
@@ -26,6 +17,8 @@
 #include <signal.h>  // signal
 #include <stdbool.h> // bool
 #include <pthread.h> // pthread
+#include <string.h>  // strcpy
+#include <time.h>    // time (random number generator)
 
 // Constants
 #define SIGINT 2
@@ -33,27 +26,48 @@
 // Global variables
 volatile bool continueFlag = true;
 
+typedef struct queueArgs
+{
+  int sleepTime;
+  char *producerName;
+} queueArgs_t;
+
+// Initialize a data queue
+data_t data = {1, "Hello queue"};
+queue_t queue = {NULL}; // Note: element of queue = NULL
+
 // Prototypes
 void signalHandler(int signal);
 void initSignalHandler(void);
 void *producerThread(void *arg);
 void *consumerThread(void *arg);
+// void appendFile();
 
 int main()
 {
+  // Seed the random number generator
+  srand(time(NULL));
+
   // Initialize signal handler
   initSignalHandler();
 
-  // Initialize a data queue
+  // Create a queue
+  createQueue(&queue, data);
 
   // Define threads
   pthread_t producerA, producerB, producerC, consumerD;
 
+  // Define arguments for the threads (sleeptime and thread name)
+  queueArgs_t queueArgsA = {2, "A"};
+  queueArgs_t queueArgsB = {3, "B"};
+  queueArgs_t queueArgsC = {4, "C"};
+  queueArgs_t queueArgsD = {15, "D"};
+
   // Create threads
-  pthread_create(&producerA, NULL, producerThread, "A");
-  pthread_create(&producerB, NULL, producerThread, "B");
-  pthread_create(&producerC, NULL, producerThread, "C");
-  pthread_create(&consumerD, NULL, consumerThread, "D");
+  pthread_create(&producerA, NULL, producerThread, &queueArgsA);
+  pthread_create(&producerB, NULL, producerThread, &queueArgsB);
+  pthread_create(&producerC, NULL, producerThread, &queueArgsC);
+  pthread_create(&consumerD, NULL, consumerThread, &queueArgsD);
 
   // Join threads
   pthread_join(producerA, NULL);
@@ -94,37 +108,25 @@ void initSignalHandler()
 // Producer thread function
 void *producerThread(void *arg)
 {
-  // Get the producer name and store it in a local variable
-  char *producerName = (char *)arg;
+  // Cast the argument to queueArgs_t
+  queueArgs_t *queueArgs = (queueArgs_t *)arg;
+
+  // Get the producer name and sleep time from the argument
+  char *producerName = queueArgs->producerName;
+  int sleepTime = queueArgs->sleepTime;
 
   // Producer thread loop
   while (continueFlag)
   {
-    // Switch case to determine the sleep time
-    switch (*producerName)
-    {
-    case 'A':
-      // Produce data every 2 seconds
-      printf("Producer name: %s\t", producerName);
-      fflush(stdout);
+    // Generate a random number between 0 and 999999
+    int random = rand() % 999999;
 
-      sleep(2);
-      break;
-    case 'B':
-      // Produce data every 3 seconds
-      printf("Producer name: %s\t", producerName);
-      fflush(stdout);
+    // Create a new data node and enqueue it
+    data = (data_t){random, *producerName};
+    pushQueue(&queue, data);
 
-      sleep(3);
-      break;
-    case 'C':
-      // Produce data every 4 seconds
-      printf("Producer name: %s\t", producerName);
-      fflush(stdout);
-
-      sleep(4);
-      break;
-    }
+    // Sleep for the specified time
+    sleep(sleepTime);
   }
 
   return NULL;
@@ -133,27 +135,47 @@ void *producerThread(void *arg)
 // Consumer thread function
 void *consumerThread(void *arg)
 {
-  // Execute every 15 seconds
-  // Appends data to a file
-  // Print data to stdout
-  // Empty the queue
+  // Cast the argument to queueArgs_t
+  queueArgs_t *queueArgs = (queueArgs_t *)arg;
 
-  // Get the consumer name and store it in a local variable. Print for debugging purposes
-  char *consumerName = (char *)arg;
+  // Get the producer name and sleep time from the argument
+  char *producerName = queueArgs->producerName;
+  int sleepTime = queueArgs->sleepTime;
 
   // Consumer thread loop
   while (continueFlag)
   {
-    // Append data to a file
-
-    
+    // Append all data to a file
+    //appendFile(&queue);
 
     // Print data to stdout
+    showQueue(&queue);
 
     // Empty the queue
+    popQueue(&queue);
 
-    sleep(15);
+    // Sleep for 15 seconds
+    sleep(sleepTime);
   }
 
   return NULL;
 }
+
+/*
+
+void appendFile()
+{
+  // Write queue data to a file
+  FILE *file = fopen("queue.txt", "a");
+
+  // Check if the file is open
+  if (file == NULL)
+  {
+    printf("Error opening file!\n");
+    exit(1);
+  }
+
+  // Write data to the file
+}
+
+*/
