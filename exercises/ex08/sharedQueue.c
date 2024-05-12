@@ -20,15 +20,46 @@
 */
 
 #include "Queue.h"
-#include <stdio.h> // printf
-#include <stdlib.h>
+#include <stdio.h>   // printf
+#include <stdlib.h>  // exit
 #include <unistd.h>  // sleep
 #include <signal.h>  // signal
 #include <stdbool.h> // bool
+#include <pthread.h> // pthread
 
 #define SIGINT 2
 
-bool finishFlagRaised = false;
+volatile bool finishFlagRaised = false;
+
+// Prototypes
+void signalHandler(int signal);
+void initSignalHandler(void);
+void producerThread(char *producerName);
+void consumerThread(char *consumerName);
+
+int main()
+{
+  // Initialize signal handler
+  initSignalHandler();
+
+  // Define threads
+  pthread_t producerA, producerB, producerC, consumerD;
+
+  // Create threads
+  pthread_create(&producerA, NULL, producerThread, "A");
+  pthread_create(&producerB, NULL, producerThread, "B");
+  pthread_create(&producerC, NULL, producerThread, "C");
+  pthread_create(&consumerD, NULL, consumerThread, "D");
+
+  // Join threads
+  pthread_join(producerA, NULL);
+  pthread_join(producerB, NULL);
+  pthread_join(producerC, NULL);
+  pthread_join(consumerD, NULL);
+
+  printf("\n\n\nProgram finished!\n");
+  return 0;
+}
 
 // Signal handler for CTRL-C
 // To make sure all threads finish their last cycle
@@ -43,77 +74,29 @@ void signalHandler(int signal)
   }
 }
 
-int main()
+// Initialize signal handler
+void initSignalHandler()
 {
-  // Signal handler for CTRL-C
-  // signal(SIGINT, signalHandler);
   struct sigaction sa;
   sa.sa_handler = signalHandler;
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = 0;
+  sigaction(SIGINT, &sa, NULL);
+}
 
-  if (sigaction(SIGINT, &sa, NULL) == -1)
-  {
-    perror("sigaction");
-    return 1;
-  }
+void producerThread(char *producerName)
+{
+  printf("Producer thread %s\t", producerName);
+}
 
-  int timeTick = 0;
+void consumerThread(char *consumerName)
+{
+  printf("Consumer thread %s\t", consumerName);
 
-  while ((timeTick < 15) && (finishFlagRaised == false))
-  {
-    // Show current time tick
-    printf("Time tick: %d\t", timeTick);
+  // Append data to file
 
-    // Producer thread A
-    // Write data to queue every 2 seconds
-    if (timeTick % 2 == 0)
-    {
-      printf("Producer thread A\t");
-    }
+  // Print data to stdout
 
-    // Producer thread B
-    // Write data to queue every 3 seconds
-    if (timeTick % 3 == 0)
-    {
-      printf("Producer thread B\t");
-    }
+  // Empty the queue
 
-    // Producer thread C
-    // Write data to queue every 4 seconds
-    if (timeTick % 4 == 0)
-    {
-      printf("Producer thread C\t");
-    }
-
-    // Consumer thread
-    // Read data from queue every 15 seconds
-    if (timeTick % 15 == 0)
-    {
-      printf("Consumer thread\t");
-
-      // Append data to file
-
-      // Print data to stdout
-
-      // Empty the queue
-    }
-
-    // sleep for 1 second
-    sleep(1);
-
-    // Increment timeTick
-    if (timeTick == 14)
-    {
-      timeTick = 0;
-    }
-    else
-    {
-      timeTick++;
-    }
-
-    printf("\n");
-  }
-
-  return 0;
 }
