@@ -1,14 +1,3 @@
-/*
-
-  To do:
-    - appendFile function
-    - Mutex implementation
-    - Check if queue is empty
-    - Check for memory leaks
-    - Random number with fixed width
-
-*/
-
 // Libraries
 #include "Queue.h"
 #include <stdio.h>   // printf
@@ -17,7 +6,6 @@
 #include <signal.h>  // signal
 #include <stdbool.h> // bool
 #include <pthread.h> // pthread
-#include <string.h>  // strcpy
 #include <time.h>    // time (random number generator)
 
 // Constants
@@ -25,7 +13,7 @@
 
 // Global variables
 volatile bool continueFlag = true;
-
+pthread_mutex_t queueMutex;
 typedef struct queueArgs
 {
   int sleepTime;
@@ -33,7 +21,7 @@ typedef struct queueArgs
 } queueArgs_t;
 
 // Initialize a data queue
-data_t data = {1, "Hello queue"};
+data_t data = {1, "Hello World!"};
 queue_t queue = {NULL}; // Note: element of queue = NULL
 
 // Prototypes
@@ -50,6 +38,9 @@ int main()
 
   // Initialize signal handler
   initSignalHandler();
+
+  // Initialize mutex
+  pthread_mutex_init(&queueMutex, NULL);
 
   // Create a queue
   createQueue(&queue, data);
@@ -122,8 +113,16 @@ void *producerThread(void *arg)
     int random = rand() % 999999;
 
     // Create a new data node and enqueue it
-    data = (data_t){random, *producerName};
+    data_t data = (data_t){random, *producerName};
+
+    // Lock the mutex before accessing the queue
+    pthread_mutex_lock(&queueMutex);
+
+    // Add data to the queue
     pushQueue(&queue, data);
+
+    // Unlock the mutex after accessing the queue
+    pthread_mutex_unlock(&queueMutex);
 
     // Sleep for the specified time
     sleep(sleepTime);
@@ -145,22 +144,35 @@ void *consumerThread(void *arg)
   // Consumer thread loop
   while (continueFlag)
   {
+    // Lock the mutex before accessing the queue
+    pthread_mutex_lock(&queueMutex);
+
     // Append all data to a file
     appendFile(&queue);
 
     // Print data to stdout
     showQueue(&queue);
 
-    // SOMETHING GOES WRONG HERE. THE QUEUE IS NOT EMPTIED OR DATA SEGFAULTS. PROBABLY NEEDS A MUTEX
+    // delete queue and create a new one
+    deleteQueue(&queue);
 
-    // Empty the queue
-    while (!(emptyQueue(&queue)))
-    {
-      popQueue(&queue);
-    }
+    // Set data to a new value
+    data = (data_t){0, "Hello new queue"};
+
+    // Create a new queue
+    createQueue(&queue, data);
+
+    // Unlock the mutex after accessing the queue
+    pthread_mutex_unlock(&queueMutex);
 
     // Sleep for 15 seconds
     sleep(sleepTime);
+  }
+
+  // Make sure to unlock the mutex if we're breaking out of the loop
+  if (!(continueFlag))
+  {
+    pthread_mutex_unlock(&queueMutex);
   }
 
   return NULL;
