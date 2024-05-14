@@ -41,7 +41,7 @@ void signalHandler(int signal);
 void initSignalHandler(void);
 void *producerThread(void *arg);
 void *consumerThread(void *arg);
-// void appendFile();
+void appendFile(queue_t *queue);
 
 int main()
 {
@@ -146,13 +146,18 @@ void *consumerThread(void *arg)
   while (continueFlag)
   {
     // Append all data to a file
-    //appendFile(&queue);
+    appendFile(&queue);
 
     // Print data to stdout
     showQueue(&queue);
 
+    // SOMETHING GOES WRONG HERE. THE QUEUE IS NOT EMPTIED OR DATA SEGFAULTS. PROBABLY NEEDS A MUTEX
+
     // Empty the queue
-    popQueue(&queue);
+    while (!(emptyQueue(&queue)))
+    {
+      popQueue(&queue);
+    }
 
     // Sleep for 15 seconds
     sleep(sleepTime);
@@ -161,12 +166,14 @@ void *consumerThread(void *arg)
   return NULL;
 }
 
-/*
-
-void appendFile()
+// Write queue data to a file
+void appendFile(queue_t *queue)
 {
-  // Write queue data to a file
-  FILE *file = fopen("queue.txt", "a");
+  // Get the last node in the queue
+  const node_t *nextN = queue->lastNode;
+
+  // Create a file if it doesn't exist. Open it in append mode
+  FILE *file = fopen("queueData.txt", "a");
 
   // Check if the file is open
   if (file == NULL)
@@ -175,7 +182,23 @@ void appendFile()
     exit(1);
   }
 
-  // Write data to the file
-}
+  // Check if the queue is empty
+  if (nextN == NULL)
+  {
+    printf("Queue is empty, last node is %p\n", (void *)queue->lastNode);
+  }
 
-*/
+  // Write queue data to file as long as the queue is not empty
+  else
+  {
+    do
+    {
+      nextN = nextN->nextNode;
+      fprintf(file, "pNode = %p  Data = '%d' '%s'  nextN = %p\n",
+              (void *)nextN, nextN->data.intVal, nextN->data.text, (void *)nextN->nextNode);
+    } while (nextN != queue->lastNode);
+  }
+
+  // Close the file
+  fclose(file);
+}
